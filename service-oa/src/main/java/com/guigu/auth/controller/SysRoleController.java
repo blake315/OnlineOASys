@@ -11,10 +11,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -67,6 +64,66 @@ public class SysRoleController {
 
         return Result.success(rolePage);
     }
+
+
+    @ApiOperation("添加角色")
+    @PostMapping("save")
+    public Result save(@RequestBody SysRole sysRole){
+
+        boolean is_success = service.save(sysRole);
+        if (is_success){
+            return  Result.success();
+        }else {
+            return Result.fail();
+        }
+
+
+    }
+
+    @ApiOperation("根据id查询")
+    @GetMapping("get/{id}")
+    public Result get(@PathVariable Long id){
+        SysRole sysRole = service.getById(id);
+        return Result.success(sysRole);
+    }
+
+    @ApiOperation("修改角色")
+    @PutMapping("update")
+    public Result update(@RequestBody SysRole sysRole) {
+
+        boolean is_success = service.updateById(sysRole);
+        if (is_success){
+            return  Result.success();
+        }else {
+            return Result.fail();
+        }
+
+
+    }
+
+    @ApiOperation("根据id删除")
+    @DeleteMapping("remove/{id}")
+    public Result removeById(@PathVariable Long id) {
+        boolean is_success = service.removeById(id);
+        if (is_success){
+            return  Result.success();
+        }else {
+            return Result.fail();
+        }
+    }
+
+    @ApiOperation("批量删除")
+    @DeleteMapping("batchRemove")
+    public Result batchRemove(@RequestBody List<Long> idList) {
+        boolean is_success   = service.removeByIds(idList);
+        if (is_success){
+            return  Result.success();
+        }else {
+            return Result.fail();
+        }
+    }
+
+
 
 
 }
