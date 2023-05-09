@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Api(tags = "用户管理接口")
 @RestController
-@RequestMapping("/admin/system/sysuser")
+@RequestMapping("/admin/system/sysUser")
 public class SysUserController {
 
     @Autowired
@@ -88,6 +88,13 @@ public class SysUserController {
     @DeleteMapping("remove/{id}")
     public Result deleteById(@PathVariable Long id){
         service.removeById(id);
+        return Result.success();
+    }
+
+    @ApiOperation("更新状态")
+    @GetMapping("updateStatus/{id}/{status}")
+    public Result updateStatus(@PathVariable Long id, @PathVariable Integer status){
+        service.updateStatus(id, status);
         return Result.success();
     }
 

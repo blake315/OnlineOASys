@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.guigu.auth.service.SysRoleService;
 import com.guigu.common.result.Result;
 import com.guigu.model.system.SysRole;
+import com.guigu.vo.system.AssginRoleVo;
 import com.guigu.vo.system.SysRoleQueryVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +15,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 // 接口路径 http://localhost:8800/admin/system/sysRole/findAll
 
@@ -121,6 +123,25 @@ public class SysRoleController {
         }else {
             return Result.fail();
         }
+    }
+
+    // 查询所有角色 和 当前用户所属的角色
+
+    @ApiOperation("获取角色")
+    @GetMapping("/toAssign/{userId}")
+    public Result tuAssign(@PathVariable Long userId){
+        Map<String, Object> map = service.findRoleDataByUserId(userId);
+        return  Result.success(map);
+    }
+
+
+    // 为用户分配角色
+
+    @ApiOperation("分配角色")
+    @PostMapping("/doAssign")
+    public Result doAssign(@RequestBody AssginRoleVo assginRoleVo){
+        service.doAssign(assginRoleVo);
+        return Result.success();
     }
 
 
