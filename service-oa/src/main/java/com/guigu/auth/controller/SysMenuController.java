@@ -4,6 +4,7 @@ package com.guigu.auth.controller;
 import com.guigu.auth.service.SysMenuService;
 import com.guigu.common.result.Result;
 import com.guigu.model.system.SysMenu;
+import com.guigu.vo.system.AssginMenuVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class SysMenuController {
     @GetMapping("findNodes")
     public Result findNodes(){
         List<SysMenu> list = sysMenuService.findNodes();
-        return Result.success();
+        return Result.success(list);
 
     }
 
@@ -52,7 +53,21 @@ public class SysMenuController {
     @ApiOperation("删除菜单")
     @DeleteMapping("remove/{id}")
     public Result remove(@PathVariable Long id){
-        sysMenuService.removeById(id);
+        sysMenuService.removeMenuById(id);
+        return Result.success();
+    }
+
+    @ApiOperation("查询所有菜单和角色分配的菜单")
+    @GetMapping("toAssign/{roleId}")
+    public Result toAssign(@PathVariable Long roleId){
+        List<SysMenu> list = sysMenuService.findMenuByRoleId(roleId);
+        return Result.success(list);
+    }
+
+    @ApiOperation("角色分配菜单")
+    @PostMapping("/doAssign")
+    public Result doAssign(@RequestBody AssginMenuVo assginRoleVo){
+        sysMenuService.doAssign(assginRoleVo);
         return Result.success();
     }
 
