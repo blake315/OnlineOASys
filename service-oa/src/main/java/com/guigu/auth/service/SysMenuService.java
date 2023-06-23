@@ -4,7 +4,7 @@ package com.guigu.auth.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.guigu.model.system.SysMenu;
 import com.guigu.vo.system.AssginMenuVo;
-import com.guigu.vo.system.AssginRoleVo;
+import com.guigu.vo.system.RouterVo;
 
 import java.util.List;
 
@@ -25,4 +25,8 @@ public interface SysMenuService extends IService<SysMenu> {
     List<SysMenu> findMenuByRoleId(Long roleId);
 
     void doAssign(AssginMenuVo assginMenuVo);
+
+    List<RouterVo> findUserMenuListByUserId(Long userId);
+
+    List<String> findUserPermsListByUserId(Long userId);
 }

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.guigu.auth.service.SysUserService;
 import com.guigu.common.result.Result;
+import com.guigu.common.utils.MD5;
 import com.guigu.model.system.SysUser;
 import com.guigu.vo.system.SysUserQueryVo;
 import io.swagger.annotations.Api;
@@ -69,6 +70,7 @@ public class SysUserController {
     @ApiOperation("保存用户")
     @PostMapping("save")
     public Result save(@RequestBody SysUser user){
+        user.setPassword(MD5.encrypt(user.getPassword()));
         service.save(user);
         return Result.success();
     }

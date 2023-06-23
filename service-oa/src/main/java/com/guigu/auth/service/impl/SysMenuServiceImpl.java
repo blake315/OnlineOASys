@@ -11,10 +11,14 @@ import com.guigu.common.config.exception.SelfException;
 import com.guigu.model.system.SysMenu;
 import com.guigu.model.system.SysRoleMenu;
 import com.guigu.vo.system.AssginMenuVo;
+import com.guigu.vo.system.MetaVo;
+import com.guigu.vo.system.RouterVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -113,5 +117,96 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
             sysRoleMenu.setMenuId(menuId);
             sysRoleMenuService.save(sysRoleMenu);
         }
+    }
+
+    /**
+     * 1. 先判断角色是否为管理员，如果是就查询所有菜单列表，如果不是再根据userId 查询可以操作的菜单列表
+     * 2. 在后者中涉及多表查询：用户角色关系表，角色菜单关系表，菜单表
+     * 3. 将查询得到的数据列表构建为要求的路由数据结构
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<RouterVo> findUserMenuListByUserId(Long userId) {
+        List<SysMenu> sysMenuList = null;
+        if (userId.longValue() == 1){
+            LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(SysMenu::getStatus, 1);
+            wrapper.orderByAsc(SysMenu::getSortValue);
+            sysMenuList = baseMapper.selectList(wrapper);
+        }else {
+            sysMenuList = baseMapper.findMenuListByUserId(userId);
+        }
+        List<SysMenu> sysMenus = MenuHelper.buildTree(sysMenuList);
+        List<RouterVo> routerList = this.buildRouter(sysMenus);
+        return routerList;
+    }
+
+    /**
+     * 此方法和上面的方法逻辑类似，
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<String> findUserPermsListByUserId(Long userId) {
+        List<SysMenu> sysMenuList = null;
+        if (userId.longValue() == 1){
+            LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(SysMenu::getStatus, 1);
+            wrapper.orderByAsc(SysMenu::getSortValue);
+            sysMenuList = baseMapper.selectList(wrapper);
+        }else {
+            sysMenuList = baseMapper.findMenuListByUserId(userId);
+        }
+        List<String> permsList = sysMenuList.stream().filter(item -> item.getType() == 2).map(item -> item.getPerms()).collect(Collectors.toList());
+        return permsList;
+    }
+
+
+    private List<RouterVo> buildRouter(List<SysMenu> sysMenus){
+        List<RouterVo> routers = new ArrayList<>();
+        for (SysMenu menu : sysMenus){
+            RouterVo router = new RouterVo();
+            router.setHidden(false);
+            router.setAlwaysShow(false);
+            router.setPath(getRouterPath(menu));
+            router.setComponent(menu.getComponent());
+            router.setMeta(new MetaVo(menu.getName(), menu.getIcon()));
+            List<SysMenu> children = menu.getChildren();
+            if (menu.getType().intValue() == 1){
+                //加载出下面的隐藏路由
+                List<SysMenu> hiddenMenuList = children.stream().filter(item -> !StringUtils.isEmpty(item.getComponent())).collect(Collectors.toList());
+                for (SysMenu hiddenMenu : hiddenMenuList){
+                    RouterVo hiddenRouter = new RouterVo();
+                    hiddenRouter.setHidden(true);
+                    hiddenRouter.setAlwaysShow(false);
+                    hiddenRouter.setPath(getRouterPath(hiddenMenu));
+                    hiddenRouter.setComponent(hiddenMenu.getComponent());
+                    hiddenRouter.setMeta(new MetaVo(hiddenMenu.getName(), hiddenMenu.getIcon()));
+
+                    routers.add(hiddenRouter);
+                }
+            }else {
+                if (!CollectionUtils.isEmpty(children)){
+                    if (children.size() > 0){
+                        router.setAlwaysShow(true);
+                    }
+                    router.setChildren(buildRouter(children));
+                }
+            }
+            routers.add(router);
+
+        }
+
+
+        return routers;
+    }
+
+    public String getRouterPath(SysMenu menu){
+        String routerPath = "/" + menu.getPath();
+        if (menu.getParentId().intValue() != 0){
+            routerPath = menu.getPath();
+        }
+        return routerPath;
     }
 }
