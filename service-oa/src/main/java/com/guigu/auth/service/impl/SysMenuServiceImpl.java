@@ -209,4 +209,10 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
         return routerPath;
     }
+
+
+    @Override
+    public List<String> findUserPermsList(Long userId) {
+
+    }
 }
