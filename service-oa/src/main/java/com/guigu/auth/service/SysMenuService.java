@@ -30,5 +30,4 @@ public interface SysMenuService extends IService<SysMenu> {
 
     List<String> findUserPermsListByUserId(Long userId);
 
-    List<String> findUserPermsList(Long userId);
 }

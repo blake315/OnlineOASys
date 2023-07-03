@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -33,12 +32,12 @@ public class UserDetailServiceImpl implements UserDetailService {
         if (sysUser.getStatus().intValue() == 0){
             throw new RuntimeException("账户已停用");
         }
-        List<String> userPermsList = sysMenuService.findUserPermsList(sysUser.getId());
+        List<String> userPermsList = sysMenuService.findUserPermsListByUserId(sysUser.getId());
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        for (String perm : userPermsList) {
-            authorities.add(new SimpleGrantedAuthority(perm.trim()));
+        for (String perms : userPermsList) {
+            authorities.add(new SimpleGrantedAuthority(perms.trim()));
         }
 
-        return new CustomUser(sysUser, Collections.emptyList());
+        return new CustomUser(sysUser, authorities);
     }
 }
