@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@MapperScan("com.guigu.auth.mapper")
+@MapperScan(basePackages = {"com.guigu.auth.mapper","com.guigu.process.mapper"})
 public class MybatisPlusConfig {
 
     /**
